@@ -1,3 +1,7 @@
+更新：
+V3版本适配ipad
+v1版本适配pc
+
 🎄 Emerald Christmas Magic | 祖母绿沉浸式圣诞树
 一个极简奢华风格的 Web 3D 圣诞互动体验项目。结合了 Three.js 粒子系统、MediaPipe 手势识别以及 Canvas 烟花引擎，打造出电影级的视听盛宴。
 
