@@ -3,27 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Emerald Christmas - Tablet Edition</title>
+    <title>Emerald Christmas - Mobile Lite</title>
     <style>
         /* --- 1. GLOBAL & FONTS --- */
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
         
         body { 
-            margin: 0; 
-            overflow: hidden; 
+            margin: 0; overflow: hidden; 
             background-color: #011a0e; 
             background: radial-gradient(circle at center, #022414 0%, #000803 100%);
             font-family: 'Times New Roman', serif; 
-            user-select: none; 
-            -webkit-user-select: none; /* Safari/iPad fix */
-            -webkit-touch-callout: none;
+            user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
             color: #d4af37;
-            /* 关键修改：防止移动端下拉刷新 */
-            overscroll-behavior: none;
-            touch-action: none;
+            overscroll-behavior: none; touch-action: none;
         }
         
-        /* --- 2. LAYERS (使用 dvh 适配移动端地址栏) --- */
+        /* --- 2. LAYERS --- */
+        /* 使用 dvh 解决手机浏览器底栏遮挡问题 */
         #canvas-container { width: 100vw; height: 100dvh; position: absolute; top: 0; left: 0; z-index: 1; }
         #fireworks-canvas { width: 100vw; height: 100dvh; position: absolute; top: 0; left: 0; z-index: 2; pointer-events: none; }
         
@@ -32,94 +28,87 @@
             position: absolute; top: 0; left: 0; width: 100%; height: 100dvh;
             z-index: 5; pointer-events: none;
             display: flex; flex-direction: column; align-items: center;
-            padding-top: 5vh; box-sizing: border-box;
+            padding-top: 8vh; /* 手机端稍微靠下一点 */
+            box-sizing: border-box;
             transition: opacity 0.8s ease; 
         }
 
         h1 { 
             font-family: 'Cinzel', serif; color: #fceea7; 
-            /* 适配平板屏幕尺寸 */
-            font-size: min(10vw, 56px); 
-            margin: 0; font-weight: 700; letter-spacing: 4px; 
-            text-shadow: 0 0 30px rgba(212, 175, 55, 0.8), 0 0 10px rgba(255, 255, 255, 0.5);
+            font-size: min(12vw, 48px); /* 手机端字体适配 */
+            margin: 0; font-weight: 700; letter-spacing: 3px; 
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.8);
             background: linear-gradient(to bottom, #fffdf0, #d4af37);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-align: center; padding: 0 20px;
+            text-align: center; padding: 0 15px;
         }
 
-        /* --- 4. IMMERSIVE TOGGLE BUTTON (加大触控区域) --- */
+        /* --- 4. BUTTONS --- */
         #immersive-btn {
-            position: absolute; top: 20px; right: 20px; z-index: 60;
+            position: absolute; top: 15px; right: 15px; z-index: 60;
             background: rgba(0, 10, 5, 0.6);
             border: 1px solid #d4af37; color: #d4af37;
-            width: 60px; height: 60px; /* 加大便于手指点击 */
+            width: 50px; height: 50px;
             border-radius: 50%;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
-            font-size: 28px; transition: 0.3s;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+            font-size: 24px; transition: 0.3s;
             backdrop-filter: blur(5px);
             -webkit-tap-highlight-color: transparent;
         }
-        #immersive-btn:active { transform: scale(0.9); }
 
-        /* Clean Mode Class */
         body.clean-mode #ui-layer,
-        body.clean-mode #webcam-wrapper {
-            opacity: 0 !important;
-            pointer-events: none;
-        }
+        body.clean-mode #webcam-wrapper { opacity: 0 !important; pointer-events: none; }
 
         /* --- 5. OVERLAYS --- */
         .fullscreen-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100dvh;
-            background: rgba(1, 15, 8, 0.96); z-index: 100;
+            background: rgba(1, 15, 8, 0.98); z-index: 100;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             color: #d4af37; transition: opacity 0.8s ease; backdrop-filter: blur(15px);
         }
 
         .setup-container {
-            width: 90%; max-width: 500px; padding: 30px;
+            width: 85%; max-width: 350px; padding: 25px;
             border: 1px solid rgba(212, 175, 55, 0.4);
-            background: linear-gradient(135deg, rgba(20, 40, 30, 0.9), rgba(5, 15, 10, 0.95));
-            border-radius: 8px; text-align: center;
-            box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
-            position: relative;
+            background: linear-gradient(135deg, rgba(20, 40, 30, 0.95), rgba(5, 15, 10, 0.98));
+            border-radius: 12px; text-align: center;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
         }
 
-        .setup-group { margin-bottom: 20px; text-align: left; }
-        .setup-label { display: block; margin-bottom: 8px; font-family: 'Cinzel', serif; font-size: 14px; letter-spacing: 1px; color: #a3cfa3; }
-        .setup-input { width: 100%; padding: 15px; background: rgba(0, 0, 0, 0.4); border: 1px solid #2a4a3a; color: #fff; font-size: 16px; border-radius: 4px; box-sizing: border-box; }
+        .setup-group { margin-bottom: 15px; text-align: left; }
+        .setup-label { display: block; margin-bottom: 6px; font-family: 'Cinzel', serif; font-size: 12px; letter-spacing: 1px; color: #a3cfa3; }
+        .setup-input { width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.4); border: 1px solid #2a4a3a; color: #fff; font-size: 14px; border-radius: 6px; box-sizing: border-box; }
         
         .file-btn { 
             border: 1px solid rgba(212, 175, 55, 0.4); color: #d4af37; 
-            background: rgba(0,20,10,0.5); padding: 15px; width: 100%; 
-            font-size: 14px; letter-spacing: 2px; border-radius: 4px;
+            background: rgba(0,20,10,0.5); padding: 12px; width: 100%; 
+            font-size: 12px; letter-spacing: 1px; border-radius: 6px;
         }
         
         .action-btn { 
             background: linear-gradient(to right, #bf953f, #fcf6ba, #bf953f);
-            color: #001005; border: none; padding: 18px 60px;
-            font-family: 'Cinzel', serif; font-size: 18px; letter-spacing: 4px; 
-            margin-top: 20px; font-weight: 700; border-radius: 4px;
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
+            color: #001005; border: none; padding: 15px 40px;
+            font-family: 'Cinzel', serif; font-size: 16px; letter-spacing: 2px; 
+            margin-top: 15px; font-weight: 700; border-radius: 6px;
+            width: 100%;
         }
 
-        /* --- 6. WEBCAM BOX (适配横屏/竖屏) --- */
+        /* --- 6. WEBCAM BOX --- */
         #webcam-wrapper {
             position: absolute; bottom: 20px; left: 20px; 
-            width: 160px; height: 120px; z-index: 50;
-            border: 2px solid #d4af37; background: rgba(0, 10, 5, 0.8);
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+            width: 120px; height: 90px; z-index: 50; /* 手机端缩小预览框 */
+            border: 1px solid #d4af37; background: rgba(0, 10, 5, 0.8);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
             transition: opacity 0.8s ease;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            border-radius: 8px; overflow: hidden;
+            border-radius: 6px; overflow: hidden;
         }
-        #webcam-wrapper::after { content: 'GESTURE'; position: absolute; bottom: 5px; width: 100%; text-align: center; color: #d4af37; font-size: 10px; letter-spacing: 2px; text-shadow: 0 0 3px rgba(0,0,0,1); }
-        #webcam-preview { width: 100%; height: 100%; object-fit: cover; opacity: 0.9; transform: scaleX(-1); /* 镜像翻转方便直觉操作 */ }
+        #webcam-wrapper::after { content: 'GESTURE'; position: absolute; bottom: 2px; width: 100%; text-align: center; color: #d4af37; font-size: 8px; letter-spacing: 1px; }
+        #webcam-preview { width: 100%; height: 100%; object-fit: cover; opacity: 0.9; transform: scaleX(-1); }
         
-        .spinner { width: 50px; height: 50px; border: 3px solid rgba(212, 175, 55, 0.1); border-top: 3px solid #d4af37; border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 25px; }
+        .spinner { width: 40px; height: 40px; border: 3px solid rgba(212, 175, 55, 0.1); border-top: 3px solid #d4af37; border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .loader-text { font-family: 'Cinzel', serif; font-size: 16px; letter-spacing: 2px; color: #d4af37; text-align: center; padding: 0 20px; line-height: 1.5; }
+        .loader-text { font-family: 'Cinzel', serif; font-size: 14px; color: #d4af37; text-align: center; line-height: 1.5; }
 
     </style>
     
@@ -139,19 +128,19 @@
 
     <div id="system-loader" class="fullscreen-overlay" style="z-index: 200;">
         <div class="spinner" id="sys-spinner"></div>
-        <div class="loader-text" id="sys-status">Initializing<br>Tablet Experience...</div>
+        <div class="loader-text" id="sys-status">Detecting Device...</div>
         <button id="init-btn" class="action-btn" onclick="requestPermissionAndNext()" style="display:none;">Start Magic</button>
     </div>
 
     <div id="setup-screen" class="fullscreen-overlay" style="z-index: 150; display: none;">
         <div class="setup-container">
-            <h2 style="font-family: 'Cinzel'; margin: 0 0 25px 0; color: #fceea7; font-size: 22px;">Setup</h2>
+            <h2 style="font-family: 'Cinzel'; margin: 0 0 20px 0; color: #fceea7; font-size: 20px;">Setup</h2>
             <div class="setup-group">
-                <label class="setup-label">Greeting Title</label>
+                <label class="setup-label">Title</label>
                 <input type="text" id="greeting-input" class="setup-input" placeholder="Merry Christmas" value="Merry Christmas">
             </div>
             <div class="setup-group">
-                <label class="setup-label">Add Photos</label>
+                <label class="setup-label">Photos (Original Quality)</label>
                 <div class="file-input-wrapper">
                     <button class="file-btn" id="photo-btn" onclick="document.getElementById('photo-input').click()">Select Images</button>
                     <input type="file" id="photo-input" multiple accept="image/*" style="display: none;" onchange="handleSetupFiles(this, 'photo-btn')">
@@ -176,18 +165,21 @@
     </div>
 
     <div id="webcam-wrapper" style="opacity: 0;">
-        <video id="webcam" autoplay playsinline style="display:none;"></video>
+        <video id="webcam" autoplay playsinline style="position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; z-index: -1;"></video>
         <canvas id="webcam-preview"></canvas>
     </div>
 
     <script>
-        // --- DEVICE DETECTION & CONFIG ---
-        // 关键：检测是否为移动端/平板，动态降低粒子数量以保证流畅度
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 1024;
-        
-        const PARTICLE_COUNT = isMobile ? 1600 : 3200; // 平板减半粒子数
-        const TREE_HEIGHT = isMobile ? 22 : 28;
-        const RENDER_PIXEL_RATIO = isMobile ? 1.5 : Math.min(window.devicePixelRatio, 2); // 限制像素比
+        // --- 核心优化配置 ---
+        // 手机版极致优化参数
+        const CONFIG_MOBILE = {
+            particles: 900,       // 900个粒子，保证手机60fps
+            snow: 500,           // 500雪花
+            pixelRatio: 1.5,     // 锁定1.5倍渲染，防止4K屏手机卡死
+            anisotropy: 4,       // 纹理过滤降级，省显存带宽
+            camWidth: 320,       // 摄像头 QVGA，省 CPU 给渲染
+            camHeight: 240
+        };
 
         let userPhotos = [];
         let userAudio = null;
@@ -200,10 +192,7 @@
             const btn = document.getElementById('init-btn');
             const spinner = document.getElementById('sys-spinner');
             
-            // iPad/Tablet 特别提示
-            status.innerHTML = isMobile 
-                ? "Tablet Mode Detected.<br>Optimizing Graphics..." 
-                : "Welcome.<br>Initializing System...";
+            status.innerHTML = "Mobile Mode Ready.<br>Optimized for Performance.";
                 
             setTimeout(() => {
                 status.innerHTML = "Tap below to allow camera<br>for gesture control.";
@@ -213,16 +202,11 @@
 
             const toggleBtn = document.getElementById('immersive-btn');
             toggleBtn.addEventListener('click', toggleImmersiveMode);
-            // 绑定触摸事件防止默认行为干扰
             toggleBtn.addEventListener('touchstart', (e) => { e.stopPropagation(); }, {passive: false});
         };
 
         function toggleImmersiveMode() {
             document.body.classList.toggle('clean-mode');
-            // 尝试请求全屏（Android平板支持较好）
-            if (document.documentElement.requestFullscreen && document.body.classList.contains('clean-mode')) {
-                document.documentElement.requestFullscreen().catch(e => {});
-            }
         }
 
         async function requestPermissionAndNext() {
@@ -234,13 +218,13 @@
             status.innerText = "Accessing Camera...";
 
             try {
-                // 关键：平板强制请求前置摄像头，且限制分辨率以提升性能
+                // 手机端极低分辨率采集，节省算力
                 const constraints = {
                     audio: false,
                     video: {
-                        facingMode: 'user', // 强制前置
-                        width: { ideal: 640 }, // 降低处理分辨率
-                        height: { ideal: 480 }
+                        facingMode: 'user', 
+                        width: { ideal: CONFIG_MOBILE.camWidth }, 
+                        height: { ideal: CONFIG_MOBILE.camHeight }
                     }
                 };
                 
@@ -269,6 +253,7 @@
                     Array.from(input.files).forEach(file => {
                         const reader = new FileReader();
                         reader.onload = (e) => {
+                            // 保持原图，不压缩，只在 WebGL 渲染时处理
                             const img = new Image();
                             img.src = e.target.result;
                             img.onload = () => {
@@ -297,7 +282,7 @@
                 const audio = new Audio(audioUrl);
                 audio.loop = true;
                 audio.volume = 0.5;
-                audio.play().catch(e => console.log("Audio play failed (interaction required on tablet):", e));
+                audio.play().catch(e => console.log("Audio play failed:", e));
             }
             const setupScreen = document.getElementById('setup-screen');
             setupScreen.style.opacity = 0;
@@ -347,8 +332,9 @@
         // ==========================================
         // PART 2: 3D ENGINE
         // ==========================================
-        const CONFIG = { colors: { bg: 0x011a0e, gold: 0xd4af37, leafGreen: 0x0b3d18, trunkBrown: 0x3d2314, lights: [0xff3333, 0xffd700, 0x3366ff, 0xaa33cc, 0xffffff] }, particles: { count: PARTICLE_COUNT, treeHeight: TREE_HEIGHT, treeRadius: 10 }, snow: { count: 1200, speed: 3.5 }, camera: { z: 50 } };
+        const CONFIG = { colors: { bg: 0x011a0e, gold: 0xd4af37, leafGreen: 0x0b3d18, trunkBrown: 0x3d2314, lights: [0xff3333, 0xffd700, 0x3366ff, 0xaa33cc, 0xffffff] }, particles: { count: CONFIG_MOBILE.particles, treeHeight: 22, treeRadius: 9 }, snow: { count: CONFIG_MOBILE.snow, speed: 3.5 }, camera: { z: 45 } };
         const STATE = { mode: 'TREE', focusTarget: null, hand: { detected: false, x: 0, y: 0 }, rotation: { x: 0, y: 0 }, photoIndex: -1, hasExpandedOnce: false, interactionEnabled: false };
+        let grabTimer = null; 
         let isGestureLocked = false; 
         
         let scene, camera, renderer, composer, mainGroup; 
@@ -378,17 +364,16 @@
             video = document.getElementById('webcam');
             webcamCanvas = document.getElementById('webcam-preview');
             webcamCtx = webcamCanvas.getContext('2d');
-            webcamCanvas.width = 160; webcamCanvas.height = 120;
+            webcamCanvas.width = 160; webcamCanvas.height = 120; // 内部计算分辨率
             const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm");
             
-            // 优化：针对平板使用不同的Delegate模式
-            const delegateMode = isMobile ? "GPU" : "GPU"; 
-            
             handLandmarker = await HandLandmarker.createFromOptions(vision, {
-                baseOptions: { modelAssetPath: `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`, delegate: delegateMode },
+                baseOptions: { modelAssetPath: `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`, delegate: "GPU" },
                 runningMode: "VIDEO", numHands: 1
             });
+            
             video.srcObject = existingStream;
+            video.onloadedmetadata = () => { video.play(); };
             video.addEventListener("loadeddata", predictWebcam);
         };
 
@@ -397,11 +382,11 @@
             scene = new THREE.Scene();
             scene.background = new THREE.Color(CONFIG.colors.bg);
             scene.fog = new THREE.FogExp2(CONFIG.colors.bg, 0.012); 
-            camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.position.set(0, 3, CONFIG.camera.z); 
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(RENDER_PIXEL_RATIO); // 使用计算后的像素比
+            renderer.setPixelRatio(CONFIG_MOBILE.pixelRatio); // 锁定 1.5 倍
             renderer.toneMapping = THREE.ReinhardToneMapping; 
             renderer.toneMappingExposure = 2.4; 
             container.appendChild(renderer.domElement);
@@ -409,8 +394,8 @@
             mainGroup.position.y = -2.0; 
             scene.add(mainGroup);
             const renderScene = new RenderPass(scene, camera);
-            const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-            bloomPass.threshold = 0.5; bloomPass.strength = 0.6; bloomPass.radius = 0.5; 
+            // 降低 Bloom 参数以节省性能
+            const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.2, 0.3, 0.9);
             composer = new EffectComposer(renderer);
             composer.addPass(renderScene);
             composer.addPass(bloomPass);
@@ -431,15 +416,15 @@
             const pmremGenerator = new THREE.PMREMGenerator(renderer);
             scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
             const boxGeo = new THREE.BoxGeometry(0.4, 0.4, 0.4);
-            const sphereGeo = new THREE.SphereGeometry(0.35, 16, 16); 
+            const sphereGeo = new THREE.SphereGeometry(0.35, 12, 12); // 降低球体段数 16->12
             const leafMat = new THREE.MeshStandardMaterial({ color: CONFIG.colors.leafGreen, metalness: 0.1, roughness: 0.8, emissive: 0x021204, emissiveIntensity: 0.2 });
             const trunkMat = new THREE.MeshStandardMaterial({ color: CONFIG.colors.trunkBrown, roughness: 0.9, metalness: 0.1 });
             CONFIG.colors.lights.forEach(c => {
                 const mat = new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: 1.0, metalness: 0.8, roughness: 0.2 });
                 lightMaterials.push(mat);
             });
-            // 减少树干数量以优化性能
-            const trunkCount = isMobile ? 150 : 300;
+            // 减少树干
+            const trunkCount = 100;
             for(let i=0; i<trunkCount; i++) {
                 const mesh = new THREE.Mesh(boxGeo, trunkMat);
                 const r = Math.random() * 1.5; const theta = Math.random() * Math.PI * 2;
@@ -478,6 +463,12 @@
         function addPhotoParticle(src, aspect) {
             const tex = new THREE.TextureLoader().load(src);
             tex.colorSpace = THREE.SRGBColorSpace;
+            // 手机端优化：限制各向异性过滤等级，防止过热
+            tex.minFilter = THREE.LinearFilter;
+            tex.magFilter = THREE.LinearFilter;
+            tex.generateMipmaps = false; 
+            tex.anisotropy = Math.min(renderer.capabilities.getMaxAnisotropy(), CONFIG_MOBILE.anisotropy);
+
             const baseH = 1.2; const baseW = baseH * aspect;
             const frameGeo = new THREE.BoxGeometry(baseW + 0.2, baseH + 0.2, 0.05);
             const frameMat = new THREE.MeshStandardMaterial({ color: CONFIG.colors.gold, metalness: 1.0, roughness: 0.2 });
@@ -573,7 +564,6 @@
         async function predictWebcam() {
             if (video.currentTime !== lastVideoTime) {
                 lastVideoTime = video.currentTime;
-                // 绘制时水平翻转以符合直觉
                 webcamCtx.save();
                 webcamCtx.scale(-1, 1);
                 webcamCtx.drawImage(video, -webcamCanvas.width, 0, webcamCanvas.width, webcamCanvas.height);
@@ -585,10 +575,8 @@
                         if (!STATE.interactionEnabled) return;
                         STATE.hand.detected = true; const lm = result.landmarks[0];
                         
-                        // 绘制手势点（带翻转校正）
                         webcamCtx.fillStyle = "#d4af37"; 
                         lm.forEach(p => { 
-                            // MediaPipe的x坐标已经归一化，翻转只需 1 - x
                             const drawX = (1 - p.x) * webcamCanvas.width;
                             webcamCtx.beginPath(); 
                             webcamCtx.arc(drawX, p.y * webcamCanvas.height, 2, 0, 2*Math.PI); 
@@ -599,8 +587,13 @@
                         const pinchDist = Math.hypot(lm[4].x - lm[8].x, lm[4].y - lm[8].y);
                         
                         if (STATE.mode === 'FOCUS') {
-                            if (avgDist > 0.4 && !isGestureLocked) { 
-                                changeState('SCATTER'); lockGesture(); 
+                            if (avgDist > 0.4) {
+                                if (grabTimer) { clearTimeout(grabTimer); grabTimer = null; }
+                                isGestureLocked = false;
+                                changeState('SCATTER');
+                            }
+                            else if (!isGestureLocked && avgDist > 0.3) {
+                                changeState('SCATTER');
                             }
                         } else if (STATE.mode === 'SCATTER') {
                             if (pinchDist < 0.05 && !isGestureLocked) {
@@ -609,28 +602,24 @@
                                     const randomIdx = Math.floor(Math.random() * photos.length);
                                     STATE.focusTarget = photos[randomIdx].mesh;
                                     STATE.mode = 'FOCUS';
-                                    lockGesture();
+                                    isGestureLocked = true;
+                                    if(grabTimer) clearTimeout(grabTimer);
+                                    grabTimer = setTimeout(() => { isGestureLocked = false; grabTimer = null; }, 3000);
                                 }
                             } else if (avgDist < 0.25 && !isGestureLocked) {
-                                changeState('TREE'); lockGesture();
+                                changeState('TREE'); 
                             }
                         } else { 
                             if (avgDist > 0.4 && !isGestureLocked) {
-                                changeState('SCATTER'); lockGesture();
+                                changeState('SCATTER');
                             }
                         }
-                        // 手部控制旋转 (注意x轴的翻转)
                         STATE.hand.x = ((1 - lm[9].x) - 0.5) * 2; 
                         STATE.hand.y = (lm[9].y - 0.5) * 2;
                     } else { STATE.hand.detected = false; }
                 }
             }
             requestAnimationFrame(predictWebcam);
-        }
-
-        function lockGesture() {
-            isGestureLocked = true;
-            setTimeout(() => { isGestureLocked = false; }, 1500);
         }
 
         function animate() {
