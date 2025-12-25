@@ -3,23 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Emerald Christmas - Ultimate Edition</title>
+    <title>Emerald Christmas - Smooth Fix</title>
     <style>
         /* --- 1. GLOBAL & FONTS --- */
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
         
         body { 
-            margin: 0; 
-            overflow: hidden; 
+            margin: 0; overflow: hidden; 
             background-color: #011a0e; 
             background: radial-gradient(circle at center, #022414 0%, #000803 100%);
             font-family: 'Times New Roman', serif; 
-            user-select: none; 
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
+            user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
             color: #d4af37;
-            overscroll-behavior: none;
-            touch-action: none;
+            overscroll-behavior: none; touch-action: none;
         }
         
         /* --- 2. LAYERS --- */
@@ -31,7 +27,7 @@
             position: absolute; top: 0; left: 0; width: 100%; height: 100dvh;
             z-index: 5; pointer-events: none;
             display: flex; flex-direction: column; align-items: center;
-            padding-top: 5vh; box-sizing: border-box;
+            padding-top: 6vh; box-sizing: border-box;
             transition: opacity 0.8s ease; 
         }
 
@@ -45,78 +41,71 @@
             text-align: center; padding: 0 20px;
         }
 
-        /* --- 4. IMMERSIVE TOGGLE BUTTON --- */
+        /* --- 4. BUTTONS --- */
         #immersive-btn {
             position: absolute; top: 20px; right: 20px; z-index: 60;
             background: rgba(0, 10, 5, 0.6);
             border: 1px solid #d4af37; color: #d4af37;
-            width: 60px; height: 60px;
-            border-radius: 50%;
+            width: 50px; height: 50px; border-radius: 50%;
             cursor: pointer; display: flex; align-items: center; justify-content: center;
-            font-size: 28px; transition: 0.3s;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+            font-size: 24px; transition: 0.3s;
             backdrop-filter: blur(5px);
             -webkit-tap-highlight-color: transparent;
         }
-        #immersive-btn:active { transform: scale(0.9); }
 
         body.clean-mode #ui-layer,
-        body.clean-mode #webcam-wrapper {
-            opacity: 0 !important;
-            pointer-events: none;
-        }
+        body.clean-mode #webcam-wrapper { opacity: 0 !important; pointer-events: none; }
 
         /* --- 5. OVERLAYS --- */
         .fullscreen-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100dvh;
-            background: rgba(1, 15, 8, 0.96); z-index: 100;
+            background: rgba(1, 15, 8, 0.98); z-index: 100;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             color: #d4af37; transition: opacity 0.8s ease; backdrop-filter: blur(15px);
         }
 
         .setup-container {
-            width: 90%; max-width: 500px; padding: 30px;
+            width: 85%; max-width: 400px; padding: 30px;
             border: 1px solid rgba(212, 175, 55, 0.4);
-            background: linear-gradient(135deg, rgba(20, 40, 30, 0.9), rgba(5, 15, 10, 0.95));
-            border-radius: 8px; text-align: center;
-            box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
-            position: relative;
+            background: linear-gradient(135deg, rgba(20, 40, 30, 0.95), rgba(5, 15, 10, 0.98));
+            border-radius: 12px; text-align: center;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
         }
 
         .setup-group { margin-bottom: 20px; text-align: left; }
-        .setup-label { display: block; margin-bottom: 8px; font-family: 'Cinzel', serif; font-size: 14px; letter-spacing: 1px; color: #a3cfa3; }
-        .setup-input { width: 100%; padding: 15px; background: rgba(0, 0, 0, 0.4); border: 1px solid #2a4a3a; color: #fff; font-size: 16px; border-radius: 4px; box-sizing: border-box; }
+        .setup-label { display: block; margin-bottom: 8px; font-family: 'Cinzel', serif; font-size: 13px; letter-spacing: 1px; color: #a3cfa3; }
+        .setup-input { width: 100%; padding: 14px; background: rgba(0, 0, 0, 0.4); border: 1px solid #2a4a3a; color: #fff; font-size: 16px; border-radius: 6px; box-sizing: border-box; }
         
         .file-btn { 
             border: 1px solid rgba(212, 175, 55, 0.4); color: #d4af37; 
-            background: rgba(0,20,10,0.5); padding: 15px; width: 100%; 
-            font-size: 14px; letter-spacing: 2px; border-radius: 4px;
+            background: rgba(0,20,10,0.5); padding: 14px; width: 100%; 
+            font-size: 13px; letter-spacing: 1px; border-radius: 6px;
         }
         
         .action-btn { 
             background: linear-gradient(to right, #bf953f, #fcf6ba, #bf953f);
-            color: #001005; border: none; padding: 18px 60px;
-            font-family: 'Cinzel', serif; font-size: 18px; letter-spacing: 4px; 
-            margin-top: 20px; font-weight: 700; border-radius: 4px;
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
+            color: #001005; border: none; padding: 16px 50px;
+            font-family: 'Cinzel', serif; font-size: 18px; letter-spacing: 3px; 
+            margin-top: 20px; font-weight: 700; border-radius: 6px;
+            width: 100%;
         }
 
         /* --- 6. WEBCAM BOX --- */
         #webcam-wrapper {
             position: absolute; bottom: 20px; left: 20px; 
-            width: 160px; height: 120px; z-index: 50;
+            width: 140px; height: 105px; z-index: 50;
             border: 2px solid #d4af37; background: rgba(0, 10, 5, 0.8);
             box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
             transition: opacity 0.8s ease;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             border-radius: 8px; overflow: hidden;
         }
-        #webcam-wrapper::after { content: 'GESTURE'; position: absolute; bottom: 5px; width: 100%; text-align: center; color: #d4af37; font-size: 10px; letter-spacing: 2px; text-shadow: 0 0 3px rgba(0,0,0,1); }
+        #webcam-wrapper::after { content: 'GESTURE'; position: absolute; bottom: 3px; width: 100%; text-align: center; color: #d4af37; font-size: 9px; letter-spacing: 1px; text-shadow: 0 0 2px black; }
         #webcam-preview { width: 100%; height: 100%; object-fit: cover; opacity: 0.9; transform: scaleX(-1); }
         
-        .spinner { width: 50px; height: 50px; border: 3px solid rgba(212, 175, 55, 0.1); border-top: 3px solid #d4af37; border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 25px; }
+        .spinner { width: 40px; height: 40px; border: 3px solid rgba(212, 175, 55, 0.1); border-top: 3px solid #d4af37; border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .loader-text { font-family: 'Cinzel', serif; font-size: 16px; letter-spacing: 2px; color: #d4af37; text-align: center; padding: 0 20px; line-height: 1.5; }
+        .loader-text { font-family: 'Cinzel', serif; font-size: 14px; color: #d4af37; text-align: center; line-height: 1.5; }
 
     </style>
     
@@ -136,19 +125,19 @@
 
     <div id="system-loader" class="fullscreen-overlay" style="z-index: 200;">
         <div class="spinner" id="sys-spinner"></div>
-        <div class="loader-text" id="sys-status">Initializing<br>Tablet Experience...</div>
+        <div class="loader-text" id="sys-status">Detecting Device...</div>
         <button id="init-btn" class="action-btn" onclick="requestPermissionAndNext()" style="display:none;">Start Magic</button>
     </div>
 
     <div id="setup-screen" class="fullscreen-overlay" style="z-index: 150; display: none;">
         <div class="setup-container">
-            <h2 style="font-family: 'Cinzel'; margin: 0 0 25px 0; color: #fceea7; font-size: 22px;">Setup</h2>
+            <h2 style="font-family: 'Cinzel'; margin: 0 0 25px 0; color: #fceea7; font-size: 22px;">Configuration</h2>
             <div class="setup-group">
-                <label class="setup-label">Greeting Title</label>
+                <label class="setup-label">Title</label>
                 <input type="text" id="greeting-input" class="setup-input" placeholder="Merry Christmas" value="Merry Christmas">
             </div>
             <div class="setup-group">
-                <label class="setup-label">Add Photos</label>
+                <label class="setup-label">Photos (Original Quality)</label>
                 <div class="file-input-wrapper">
                     <button class="file-btn" id="photo-btn" onclick="document.getElementById('photo-input').click()">Select Images</button>
                     <input type="file" id="photo-input" multiple accept="image/*" style="display: none;" onchange="handleSetupFiles(this, 'photo-btn')">
@@ -161,7 +150,7 @@
                     <input type="file" id="music-input" accept="audio/*" style="display: none;" onchange="handleSetupFiles(this, 'music-btn')">
                 </div>
             </div>
-            <button class="action-btn" onclick="finishSetupAndReveal()">Enter 3D World</button>
+            <button class="action-btn" onclick="finishSetupAndReveal()">Ignite Experience</button>
         </div>
     </div>
 
@@ -173,18 +162,16 @@
     </div>
 
     <div id="webcam-wrapper" style="opacity: 0;">
-        <video id="webcam" autoplay playsinline style="position: absolute; width: 320px; height: 240px; opacity: 0; pointer-events: none; z-index: -1; left: 0; top: 0;"></video>
+        <video id="webcam" autoplay muted playsinline style="position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; z-index: -1;"></video>
         <canvas id="webcam-preview"></canvas>
     </div>
 
     <script>
-        // --- DEVICE DETECTION ---
+        // --- DEVICE & CONFIG ---
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 1024;
         
-        // iPad 性能适配：粒子数量适中，保证流畅
-        const PARTICLE_COUNT = isMobile ? 1600 : 3200; 
+        const PARTICLE_COUNT = isMobile ? 1200 : 3200; // 粒子数量适中
         const TREE_HEIGHT = isMobile ? 22 : 28;
-        // 渲染分辨率优化：不过度压缩，保证图片质量
         const RENDER_PIXEL_RATIO = isMobile ? 1.5 : Math.min(window.devicePixelRatio, 2);
 
         let userPhotos = [];
@@ -198,10 +185,7 @@
             const btn = document.getElementById('init-btn');
             const spinner = document.getElementById('sys-spinner');
             
-            status.innerHTML = isMobile 
-                ? "Tablet Mode Detected.<br>High-Res Photos Ready." 
-                : "Welcome.<br>Initializing System...";
-                
+            status.innerHTML = isMobile ? "Tablet/Mobile Mode.<br>Optimizing..." : "System Ready.";
             setTimeout(() => {
                 status.innerHTML = "Tap below to allow camera<br>for gesture control.";
                 spinner.style.display = 'none';
@@ -215,9 +199,6 @@
 
         function toggleImmersiveMode() {
             document.body.classList.toggle('clean-mode');
-            if (document.documentElement.requestFullscreen && document.body.classList.contains('clean-mode')) {
-                document.documentElement.requestFullscreen().catch(e => {});
-            }
         }
 
         async function requestPermissionAndNext() {
@@ -229,13 +210,12 @@
             status.innerText = "Accessing Camera...";
 
             try {
-                // 强制前置摄像头
                 const constraints = {
                     audio: false,
                     video: {
                         facingMode: 'user', 
-                        width: { ideal: 640 }, 
-                        height: { ideal: 480 }
+                        width: { ideal: 480 }, // 分辨率适中
+                        height: { ideal: 360 }
                     }
                 };
                 
@@ -246,7 +226,7 @@
             } catch (e) {
                 console.warn("Camera denied/error:", e);
                 isCameraReady = false;
-                status.innerText = "Camera Access Failed.<br>Touch Control Only.";
+                status.innerText = "Camera Failed.<br>Touch Only.";
             }
             setTimeout(() => {
                 document.getElementById('system-loader').style.display = 'none';
@@ -264,7 +244,6 @@
                     Array.from(input.files).forEach(file => {
                         const reader = new FileReader();
                         reader.onload = (e) => {
-                            // 直接读取Base64，不进行任何Canvas压缩，保持原图质量
                             const img = new Image();
                             img.src = e.target.result;
                             img.onload = () => {
@@ -343,9 +322,8 @@
         // ==========================================
         // PART 2: 3D ENGINE
         // ==========================================
-        const CONFIG = { colors: { bg: 0x011a0e, gold: 0xd4af37, leafGreen: 0x0b3d18, trunkBrown: 0x3d2314, lights: [0xff3333, 0xffd700, 0x3366ff, 0xaa33cc, 0xffffff] }, particles: { count: PARTICLE_COUNT, treeHeight: TREE_HEIGHT, treeRadius: 10 }, snow: { count: 1200, speed: 3.5 }, camera: { z: 50 } };
+        const CONFIG = { colors: { bg: 0x011a0e, gold: 0xd4af37, leafGreen: 0x0b3d18, trunkBrown: 0x3d2314, lights: [0xff3333, 0xffd700, 0x3366ff, 0xaa33cc, 0xffffff] }, particles: { count: PARTICLE_COUNT, treeHeight: TREE_HEIGHT, treeRadius: 10 }, snow: { count: 800, speed: 3.5 }, camera: { z: 50 } };
         const STATE = { mode: 'TREE', focusTarget: null, hand: { detected: false, x: 0, y: 0 }, rotation: { x: 0, y: 0 }, photoIndex: -1, hasExpandedOnce: false, interactionEnabled: false };
-        // 修改：使用 grabTimer 控制3秒锁
         let grabTimer = null; 
         let isGestureLocked = false; 
         
@@ -386,8 +364,12 @@
                 runningMode: "VIDEO", numHands: 1
             });
             
+            // 修复关键：Video不仅要srcObject，还要明确play()并且必须是静音的
             video.srcObject = existingStream;
-            video.onloadedmetadata = () => { video.play(); };
+            video.onloadedmetadata = () => {
+                video.play().catch(e => console.log("Force play error:", e));
+            };
+            
             video.addEventListener("loadeddata", predictWebcam);
         };
 
@@ -476,7 +458,6 @@
         function addPhotoParticle(src, aspect) {
             const tex = new THREE.TextureLoader().load(src);
             tex.colorSpace = THREE.SRGBColorSpace;
-            // 关键优化：提高贴图锐度，开启各向异性过滤
             tex.minFilter = THREE.LinearFilter;
             tex.magFilter = THREE.LinearFilter;
             tex.generateMipmaps = false; 
@@ -575,13 +556,23 @@
 
         let lastVideoTime = -1;
         async function predictWebcam() {
-            if (video.currentTime !== lastVideoTime) {
-                lastVideoTime = video.currentTime;
+            // 修复关键：看门狗机制，如果视频暂停了，强制唤醒
+            if (video.paused && isCameraReady) {
+                video.play().catch(e => {});
+            }
+
+            // 修复关键：解耦绘制和识别。哪怕手势识别慢，视频画面也要动
+            if (video.readyState >= 2) {
                 webcamCtx.save();
                 webcamCtx.scale(-1, 1);
                 webcamCtx.drawImage(video, -webcamCanvas.width, 0, webcamCanvas.width, webcamCanvas.height);
                 webcamCtx.restore();
+            }
 
+            // 手势识别逻辑
+            if (video.currentTime !== lastVideoTime) {
+                lastVideoTime = video.currentTime;
+                
                 if (handLandmarker) {
                     const result = handLandmarker.detectForVideo(video, performance.now());
                     if (result.landmarks.length > 0) {
@@ -599,19 +590,13 @@
                         const wrist = lm[0]; const tips = [lm[8], lm[12], lm[16], lm[20]]; let avgDist = 0; tips.forEach(t => avgDist += Math.hypot(t.x-wrist.x, t.y-wrist.y)); avgDist /= 4;
                         const pinchDist = Math.hypot(lm[4].x - lm[8].x, lm[4].y - lm[8].y);
                         
-                        // --- 核心更新：3秒锁住机制 ---
                         if (STATE.mode === 'FOCUS') {
-                            // 1. 锁定期：即使放开手也不释放，除非手势明确变为“张开”
-                            // 2. 提前释放：如果手掌完全张开 (avgDist > 0.4)，则提前解锁
                             if (avgDist > 0.4) {
-                                // 强制提前解锁
                                 if (grabTimer) { clearTimeout(grabTimer); grabTimer = null; }
                                 isGestureLocked = false;
                                 changeState('SCATTER');
                             }
-                            // 如果没张开，且还在3秒锁定期内(isGestureLocked)，则保持FOCUS
                             else if (!isGestureLocked && avgDist > 0.3) {
-                                // 3秒已过，且手松开了 -> 自然回到 SCATTER
                                 changeState('SCATTER');
                             }
                         } else if (STATE.mode === 'SCATTER') {
@@ -620,17 +605,10 @@
                                 if (photos.length > 0) {
                                     const randomIdx = Math.floor(Math.random() * photos.length);
                                     STATE.focusTarget = photos[randomIdx].mesh;
-                                    
-                                    // 进入FOCUS并锁住3秒
                                     STATE.mode = 'FOCUS';
                                     isGestureLocked = true;
                                     if(grabTimer) clearTimeout(grabTimer);
-                                    grabTimer = setTimeout(() => {
-                                        isGestureLocked = false;
-                                        grabTimer = null;
-                                        // 3秒后自动解锁，但不会强制跳回SCATTER，
-                                        // 而是把控制权交还给手势(如果手松开就会回SCATTER)
-                                    }, 3000);
+                                    grabTimer = setTimeout(() => { isGestureLocked = false; grabTimer = null; }, 3000);
                                 }
                             } else if (avgDist < 0.25 && !isGestureLocked) {
                                 changeState('TREE'); 
