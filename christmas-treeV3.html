@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Emerald Christmas - Tablet Edition (Fixed)</title>
+    <title>Emerald Christmas - Ultimate Edition</title>
     <style>
         /* --- 1. GLOBAL & FONTS --- */
         @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
@@ -178,11 +178,13 @@
     </div>
 
     <script>
-        // --- DEVICE DETECTION & CONFIG ---
+        // --- DEVICE DETECTION ---
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 1024;
         
+        // iPad 性能适配：粒子数量适中，保证流畅
         const PARTICLE_COUNT = isMobile ? 1600 : 3200; 
         const TREE_HEIGHT = isMobile ? 22 : 28;
+        // 渲染分辨率优化：不过度压缩，保证图片质量
         const RENDER_PIXEL_RATIO = isMobile ? 1.5 : Math.min(window.devicePixelRatio, 2);
 
         let userPhotos = [];
@@ -197,7 +199,7 @@
             const spinner = document.getElementById('sys-spinner');
             
             status.innerHTML = isMobile 
-                ? "Tablet Mode Detected.<br>Optimizing Graphics..." 
+                ? "Tablet Mode Detected.<br>High-Res Photos Ready." 
                 : "Welcome.<br>Initializing System...";
                 
             setTimeout(() => {
@@ -227,7 +229,7 @@
             status.innerText = "Accessing Camera...";
 
             try {
-                // 平板强制请求前置
+                // 强制前置摄像头
                 const constraints = {
                     audio: false,
                     video: {
@@ -262,6 +264,7 @@
                     Array.from(input.files).forEach(file => {
                         const reader = new FileReader();
                         reader.onload = (e) => {
+                            // 直接读取Base64，不进行任何Canvas压缩，保持原图质量
                             const img = new Image();
                             img.src = e.target.result;
                             img.onload = () => {
@@ -342,6 +345,8 @@
         // ==========================================
         const CONFIG = { colors: { bg: 0x011a0e, gold: 0xd4af37, leafGreen: 0x0b3d18, trunkBrown: 0x3d2314, lights: [0xff3333, 0xffd700, 0x3366ff, 0xaa33cc, 0xffffff] }, particles: { count: PARTICLE_COUNT, treeHeight: TREE_HEIGHT, treeRadius: 10 }, snow: { count: 1200, speed: 3.5 }, camera: { z: 50 } };
         const STATE = { mode: 'TREE', focusTarget: null, hand: { detected: false, x: 0, y: 0 }, rotation: { x: 0, y: 0 }, photoIndex: -1, hasExpandedOnce: false, interactionEnabled: false };
+        // 修改：使用 grabTimer 控制3秒锁
+        let grabTimer = null; 
         let isGestureLocked = false; 
         
         let scene, camera, renderer, composer, mainGroup; 
@@ -381,12 +386,8 @@
                 runningMode: "VIDEO", numHands: 1
             });
             
-            // 修复关键：Video不仅要srcObject，还要明确play()
             video.srcObject = existingStream;
-            video.onloadedmetadata = () => {
-                video.play();
-            };
-            
+            video.onloadedmetadata = () => { video.play(); };
             video.addEventListener("loadeddata", predictWebcam);
         };
 
@@ -475,6 +476,12 @@
         function addPhotoParticle(src, aspect) {
             const tex = new THREE.TextureLoader().load(src);
             tex.colorSpace = THREE.SRGBColorSpace;
+            // 关键优化：提高贴图锐度，开启各向异性过滤
+            tex.minFilter = THREE.LinearFilter;
+            tex.magFilter = THREE.LinearFilter;
+            tex.generateMipmaps = false; 
+            tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
             const baseH = 1.2; const baseW = baseH * aspect;
             const frameGeo = new THREE.BoxGeometry(baseW + 0.2, baseH + 0.2, 0.05);
             const frameMat = new THREE.MeshStandardMaterial({ color: CONFIG.colors.gold, metalness: 1.0, roughness: 0.2 });
@@ -570,7 +577,6 @@
         async function predictWebcam() {
             if (video.currentTime !== lastVideoTime) {
                 lastVideoTime = video.currentTime;
-                // 绘制时水平翻转以符合直觉
                 webcamCtx.save();
                 webcamCtx.scale(-1, 1);
                 webcamCtx.drawImage(video, -webcamCanvas.width, 0, webcamCanvas.width, webcamCanvas.height);
@@ -582,10 +588,8 @@
                         if (!STATE.interactionEnabled) return;
                         STATE.hand.detected = true; const lm = result.landmarks[0];
                         
-                        // 绘制手势点（带翻转校正）
                         webcamCtx.fillStyle = "#d4af37"; 
                         lm.forEach(p => { 
-                            // MediaPipe的x坐标已经归一化，翻转只需 1 - x
                             const drawX = (1 - p.x) * webcamCanvas.width;
                             webcamCtx.beginPath(); 
                             webcamCtx.arc(drawX, p.y * webcamCanvas.height, 2, 0, 2*Math.PI); 
@@ -595,9 +599,20 @@
                         const wrist = lm[0]; const tips = [lm[8], lm[12], lm[16], lm[20]]; let avgDist = 0; tips.forEach(t => avgDist += Math.hypot(t.x-wrist.x, t.y-wrist.y)); avgDist /= 4;
                         const pinchDist = Math.hypot(lm[4].x - lm[8].x, lm[4].y - lm[8].y);
                         
+                        // --- 核心更新：3秒锁住机制 ---
                         if (STATE.mode === 'FOCUS') {
-                            if (avgDist > 0.4 && !isGestureLocked) { 
-                                changeState('SCATTER'); lockGesture(); 
+                            // 1. 锁定期：即使放开手也不释放，除非手势明确变为“张开”
+                            // 2. 提前释放：如果手掌完全张开 (avgDist > 0.4)，则提前解锁
+                            if (avgDist > 0.4) {
+                                // 强制提前解锁
+                                if (grabTimer) { clearTimeout(grabTimer); grabTimer = null; }
+                                isGestureLocked = false;
+                                changeState('SCATTER');
+                            }
+                            // 如果没张开，且还在3秒锁定期内(isGestureLocked)，则保持FOCUS
+                            else if (!isGestureLocked && avgDist > 0.3) {
+                                // 3秒已过，且手松开了 -> 自然回到 SCATTER
+                                changeState('SCATTER');
                             }
                         } else if (STATE.mode === 'SCATTER') {
                             if (pinchDist < 0.05 && !isGestureLocked) {
@@ -605,29 +620,32 @@
                                 if (photos.length > 0) {
                                     const randomIdx = Math.floor(Math.random() * photos.length);
                                     STATE.focusTarget = photos[randomIdx].mesh;
+                                    
+                                    // 进入FOCUS并锁住3秒
                                     STATE.mode = 'FOCUS';
-                                    lockGesture();
+                                    isGestureLocked = true;
+                                    if(grabTimer) clearTimeout(grabTimer);
+                                    grabTimer = setTimeout(() => {
+                                        isGestureLocked = false;
+                                        grabTimer = null;
+                                        // 3秒后自动解锁，但不会强制跳回SCATTER，
+                                        // 而是把控制权交还给手势(如果手松开就会回SCATTER)
+                                    }, 3000);
                                 }
                             } else if (avgDist < 0.25 && !isGestureLocked) {
-                                changeState('TREE'); lockGesture();
+                                changeState('TREE'); 
                             }
                         } else { 
                             if (avgDist > 0.4 && !isGestureLocked) {
-                                changeState('SCATTER'); lockGesture();
+                                changeState('SCATTER');
                             }
                         }
-                        // 手部控制旋转 (注意x轴的翻转)
                         STATE.hand.x = ((1 - lm[9].x) - 0.5) * 2; 
                         STATE.hand.y = (lm[9].y - 0.5) * 2;
                     } else { STATE.hand.detected = false; }
                 }
             }
             requestAnimationFrame(predictWebcam);
-        }
-
-        function lockGesture() {
-            isGestureLocked = true;
-            setTimeout(() => { isGestureLocked = false; }, 1500);
         }
 
         function animate() {
