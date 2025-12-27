@@ -2,829 +2,719 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>2026 Golden Splendor | AI Interactive Experience</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 新年粒子蛋糕 - 手势互动版</title>
+    <!-- 引入样式 -->
     <style>
-        /* --- CSS Styles --- */
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
-
         body {
             margin: 0;
             overflow: hidden;
-            background: radial-gradient(circle at center, #2a2208 0%, #000000 100%);
-            font-family: 'Cinzel', serif;
-            color: #ffd700;
+            background-color: #000;
+            font-family: 'Microsoft YaHei', sans-serif;
+            user-select: none;
         }
 
-        #canvas-container {
+        /* 启动遮罩层 */
+        #start-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 1;
-        }
-
-        /* UI Overlay */
-        #ui-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            pointer-events: none; /* Let clicks pass through to canvas */
+            background: radial-gradient(circle at center, #1a0b2e 0%, #000000 100%);
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .hud-panel {
-            pointer-events: auto;
-            background: rgba(10, 10, 10, 0.6);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            padding: 15px;
-            margin: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
-            color: #e0e0e0;
-            transition: all 0.3s ease;
-        }
-
-        .hud-top-left {
-            position: absolute;
-            top: 0;
-            left: 0;
-            max-width: 300px;
-        }
-
-        .hud-bottom-right {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-        }
-
-        h1 {
-            margin: 0 0 10px 0;
-            font-size: 1.2rem;
-            color: #ffd700;
-            text-shadow: 0 0 5px #ffd700;
-            border-bottom: 1px solid #ffd700;
-            padding-bottom: 5px;
-        }
-
-        p, li { font-size: 0.9rem; line-height: 1.4; color: #ccc; }
-        ul { padding-left: 20px; margin: 5px 0; }
-
-        button {
-            background: transparent;
-            border: 1px solid #ffd700;
-            color: #ffd700;
-            padding: 8px 16px;
-            cursor: pointer;
-            font-family: 'Cinzel', serif;
-            margin-top: 5px;
-            transition: 0.3s;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-
-        button:hover {
-            background: rgba(255, 215, 0, 0.2);
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
-        }
-
-        input[type="file"] { display: none; }
-
-        /* Camera Preview */
-        #webcam-container {
-            position: relative;
-            width: 160px;
-            height: 120px;
-            margin-top: 10px;
-            border: 2px solid #ffd700;
-            border-radius: 4px;
-            overflow: hidden;
-            background: #000;
-            display: none; /* Hidden initially */
-        }
-        #webcam { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
-        #webcam-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: scaleX(-1); }
-
-        /* Loading / Intro Screen */
-        #intro-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            pointer-events: auto;
+            align-items: center;
+            z-index: 999;
             transition: opacity 1s ease;
         }
+
+        #start-title {
+            font-size: 3rem;
+            color: #fff;
+            text-shadow: 0 0 20px #ff9a9e, 0 0 40px #ff9a9e;
+            margin-bottom: 2rem;
+            animation: breathe 3s infinite ease-in-out;
+            text-align: center;
+        }
+
         #start-btn {
+            padding: 15px 50px;
             font-size: 1.5rem;
-            padding: 15px 40px;
-            border: 2px solid #ffd700;
-            letter-spacing: 4px;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); }
-            70% { box-shadow: 0 0 0 20px rgba(255, 215, 0, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+            color: #fff;
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 154, 158, 0.6);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        /* Status Indicator */
-        #status-pill {
-            margin-top: 10px;
-            padding: 4px 8px;
-            background: #222;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            color: #888;
+        #start-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 40px rgba(255, 154, 158, 0.9);
         }
-        .active-state { color: #0f0 !important; }
 
-        /* Mobile Adjustments */
-        @media (max-width: 768px) {
-            .hud-panel { margin: 10px; padding: 10px; }
-            .hud-top-left { max-width: 200px; font-size: 0.8rem; }
-            #webcam-container { width: 100px; height: 75px; }
-            #intro-screen h1 { font-size: 1.5rem; }
+        /* UI 控制面板 */
+        #ui-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 30px;
+            backdrop-filter: blur(5px);
+            transition: opacity 0.5s;
+        }
+
+        .control-btn {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 154, 158, 0.6);
+        }
+
+        #file-input-img, #file-input-audio {
+            display: none;
+        }
+
+        /* 摄像头预览 (调试用，默认隐藏或小窗) */
+        .input_video {
+            display: none; 
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 160px;
+            height: 120px;
+            border-radius: 8px;
+            z-index: 50;
+            opacity: 0.6;
+        }
+
+        /* 提示信息 */
+        #status-msg {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            pointer-events: none;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
         }
     </style>
+
+    <!-- 引入库文件 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/controls/OrbitControls.js"></script>
     
-    <!-- Import Map for modules -->
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
-                "@tweenjs/tween.js": "https://unpkg.com/@tweenjs/tween.js@23.1.1/dist/tween.esm.js",
-                "@mediapipe/tasks-vision": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.8/+esm"
-            }
-        }
-    </script>
+    <!-- MediaPipe 用于手势识别 -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
-    <!-- 3D Canvas -->
-    <div id="canvas-container"></div>
-
-    <!-- UI Overlay -->
-    <div id="ui-layer">
-        <!-- Controls & Info -->
-        <div class="hud-panel hud-top-left">
-            <h1>2026 Golden Splendor</h1>
-            <p>控制指南：</p>
-            <ul>
-                <li>拖拽旋转 / 滚轮缩放</li>
-                <li>上传照片生成金框画廊</li>
-            </ul>
-            <div style="margin-top: 10px; border-top: 1px solid #444; padding-top: 5px;">
-                <p>AI 手势 (开启摄像头):</p>
-                <ul>
-                    <li>✊ <b>握拳</b>: 聚合 (Tree)</li>
-                    <li>🖐 <b>张开</b>: 散开 (Scatter)</li>
-                    <li>🤏 <b>捏合</b>: 聚焦 (Zoom)</li>
-                    <li>👋 <b>挥手</b>: 旋转场景</li>
-                </ul>
-            </div>
-            <button onclick="document.getElementById('file-input').click()">上传照片</button>
-            <input type="file" id="file-input" accept="image/*" multiple>
-            <button id="music-btn">播放音乐 🔈</button>
-            <button id="fullscreen-btn">全屏模式</button>
-        </div>
-
-        <!-- AI Preview -->
-        <div class="hud-panel hud-bottom-right">
-            <button id="ai-toggle-btn">开启 AI 控制 📷</button>
-            <div id="status-pill">AI 状态: 关闭</div>
-            <div id="webcam-container">
-                <video id="webcam" autoplay playsinline></video>
-                <canvas id="webcam-overlay"></canvas>
-            </div>
-        </div>
+    <!-- 启动界面 -->
+    <div id="start-overlay">
+        <h1 id="start-title">回顾2025<br>开启2026</h1>
+        <button id="start-btn">开启跨年之旅</button>
     </div>
 
-    <!-- Intro Screen -->
-    <div id="intro-screen">
-        <h1 style="color:#ffd700; font-size: 3rem; margin-bottom: 30px;">2026 GOLDEN GALA</h1>
-        <div id="loading-text" style="color: #666; margin-bottom: 20px;">Loading assets...</div>
-        <button id="start-btn" disabled>ENTER EXPERIENCE</button>
+    <!-- 摄像头元素 -->
+    <video class="input_video"></video>
+    
+    <!-- 状态提示 -->
+    <div id="status-msg">
+        📷 等待摄像头启动...<br>
+        👆 单指移动：旋转视口<br>
+        ✌️ 双指张合：缩放蛋糕
     </div>
 
-    <!-- Main Application Script -->
-    <script type="module">
-        import * as THREE from 'three';
-        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-        import { FontLoader } from 'three/addons/loaders/FontLoader.js';
-        import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
-        import TWEEN from '@tweenjs/tween.js';
-        import { FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision';
+    <!-- 控制按钮 -->
+    <div id="ui-controls">
+        <button class="control-btn" onclick="document.getElementById('file-input-img').click()">🖼️ 更换背景</button>
+        <button class="control-btn" onclick="document.getElementById('file-input-audio').click()">🎵 上传音乐</button>
+        <button class="control-btn" id="pure-mode-btn">✨ 纯净模式</button>
+        <button class="control-btn" id="gesture-toggle">✋ 关闭手势</button>
+    </div>
 
-        // --- Configuration ---
+    <!-- 隐藏的文件输入 -->
+    <input type="file" id="file-input-img" accept="image/*">
+    <input type="file" id="file-input-audio" accept="audio/*">
+
+    <script>
+        /**
+         * 2026 跨年粒子蛋糕 + 手势识别核心逻辑
+         */
+
+        // --- 全局变量配置 ---
         const CONFIG = {
-            instanceCount: 2500, // Total geometries
-            colors: [0xFFD700, 0xC0C0C0, 0xE0115F, 0x50C878], // Gold, Silver, Ruby, Emerald
-            bloom: { threshold: 0.2, strength: 1.5, radius: 0.5 },
-            camPos: { x: 0, y: 10, z: 80 }
+            particleCount: 25000,   // 粒子总数
+            particleSize: 0.25,     // 粒子大小
+            colors: {
+                layer1: 0xFFB7B2,   // 蛋糕底层 (粉)
+                layer2: 0xB5EAD7,   // 蛋糕中层 (薄荷绿)
+                layer3: 0xE2F0CB,   // 蛋糕顶层 (淡黄绿)
+                star: 0xFFD700,     // 金色星星
+                text: 0xFFFFFF,     // 文字白色
+                countdown: 0xFF9AA2 // 倒计时颜色
+            }
         };
 
-        // --- Globals ---
-        let scene, camera, renderer, composer, controls;
-        let instancedMesh, dummy, instances = [];
-        let particles, particleGeo, particleMat; // For Intro
-        let uploadedPhotos = []; // Group for photo frames
+        let scene, camera, renderer, controls;
+        let particleSystem, particlesGeometry;
+        let positions, colors, targetPositions, targetColors;
         let clock = new THREE.Clock();
-        let handLandmarker;
-        let webcamRunning = false;
-        let currentState = 'SCATTER'; // 'TREE', 'SCATTER'
-        let transitionProgress = 0; // 0 = Scatter, 1 = Tree
-        let autoRotate = true;
+        
+        // 流程控制
+        let currentPhase = 'idle'; // idle, countdown, 2026, cake
+        let countdownValue = 5;
+        
+        // 交互状态
+        let isPureMode = false;
+        let isGestureEnabled = true;
+        let handRotation = 0;
+        let handZoom = 15; // 摄像机初始Z轴位置
+        
+        // 音频
+        let audio = new Audio();
+        audio.loop = true;
 
-        // Music (Synth fallback)
-        let audioCtx, oscillator;
-        let isMusicPlaying = false;
+        // --- 1. 初始化 Three.js 场景 ---
+        function initScene() {
+            const container = document.createElement('div');
+            document.body.appendChild(container);
 
-        const uiElements = {
-            startBtn: document.getElementById('start-btn'),
-            intro: document.getElementById('intro-screen'),
-            loading: document.getElementById('loading-text'),
-            status: document.getElementById('status-pill'),
-            video: document.getElementById('webcam'),
-            canvasOverlay: document.getElementById('webcam-overlay')
-        };
-
-        // --- Initialization ---
-
-        async function init() {
-            // Scene Setup
             scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x111111, 0.002);
+            scene.fog = new THREE.FogExp2(0x000000, 0.02);
 
-            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 0, 100);
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 15;
 
-            renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.toneMapping = THREE.ReinhardToneMapping;
-            document.getElementById('canvas-container').appendChild(renderer.domElement);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
 
-            // Post Processing
-            const renderScene = new RenderPass(scene, camera);
-            const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-            bloomPass.threshold = CONFIG.bloom.threshold;
-            bloomPass.strength = CONFIG.bloom.strength;
-            bloomPass.radius = CONFIG.bloom.radius;
-
-            composer = new EffectComposer(renderer);
-            composer.addPass(renderScene);
-            composer.addPass(bloomPass);
-
-            // Lights
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-            scene.add(ambientLight);
-            const pointLight = new THREE.PointLight(0xffd700, 2, 100);
-            pointLight.position.set(0, 20, 20);
-            scene.add(pointLight);
-
-            // Controls
-            controls = new OrbitControls(camera, renderer.domElement);
+            // 轨道控制器 (鼠标备用)
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
 
-            // Load Resources (Font & AI)
-            uiElements.loading.innerText = "Loading AI Models & Fonts...";
+            // 添加背景星空
+            createBackgroundStars();
+
+            // 初始化粒子系统
+            initParticles();
+
+            // 窗口自适应
+            window.addEventListener('resize', onWindowResize, false);
             
-            try {
-                await Promise.all([
-                    loadFont(),
-                    setupAI()
-                ]);
-            } catch (e) {
-                console.warn("AI Load failed, falling back to mouse only", e);
-                uiElements.status.innerText = "AI Failed (Use Mouse)";
-            }
-
-            uiElements.loading.innerText = "Ready.";
-            uiElements.startBtn.disabled = false;
-            uiElements.startBtn.addEventListener('click', startExperience);
-
-            // Event Listeners
-            window.addEventListener('resize', onWindowResize);
-            document.getElementById('file-input').addEventListener('change', handleImageUpload);
-            document.getElementById('ai-toggle-btn').addEventListener('click', toggleCam);
-            document.getElementById('music-btn').addEventListener('click', toggleMusic);
-            document.getElementById('fullscreen-btn').addEventListener('click', () => {
-                if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-                else if (document.exitFullscreen) document.exitFullscreen();
-            });
-
+            // 启动渲染循环
             animate();
         }
 
-        function loadFont() {
-            return new Promise((resolve, reject) => {
-                const loader = new FontLoader();
-                // Using a standard font from three examples
-                loader.load('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/fonts/helvetiker_bold.typeface.json', (font) => {
-                    window.mainFont = font;
-                    resolve();
-                }, undefined, reject);
-            });
-        }
+        function initParticles() {
+            particlesGeometry = new THREE.BufferGeometry();
+            positions = new Float32Array(CONFIG.particleCount * 3);
+            colors = new Float32Array(CONFIG.particleCount * 3);
+            targetPositions = new Float32Array(CONFIG.particleCount * 3);
+            targetColors = new Float32Array(CONFIG.particleCount * 3);
 
-        // --- Intro Sequence ---
+            // 初始状态：随机散落在空间中
+            for (let i = 0; i < CONFIG.particleCount; i++) {
+                const x = (Math.random() - 0.5) * 100;
+                const y = (Math.random() - 0.5) * 100;
+                const z = (Math.random() - 0.5) * 100;
 
-        function startExperience() {
-            uiElements.intro.style.opacity = 0;
-            setTimeout(() => uiElements.intro.style.display = 'none', 1000);
-            
-            // Start Countdown Logic
-            runCountdown();
-            // Prepare Main Scene in background
-            createMainScene();
-        }
+                positions[i * 3] = x;
+                positions[i * 3 + 1] = y;
+                positions[i * 3 + 2] = z;
+                
+                targetPositions[i * 3] = x;
+                targetPositions[i * 3 + 1] = y;
+                targetPositions[i * 3 + 2] = z;
 
-        function runCountdown() {
-            const sequence = ['5', '4', '3', '2', '1', '2026'];
-            let idx = 0;
+                colors[i * 3] = 1;
+                colors[i * 3 + 1] = 1;
+                colors[i * 3 + 2] = 1;
+            }
 
-            // Create particle system for text
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            // 简单的圆形纹理
+            const sprite = new THREE.TextureLoader().load('https://threejs.org/examples/textures/sprites/disc.png');
+
             const material = new THREE.PointsMaterial({
-                color: 0xffd700,
-                size: 1.5,
+                size: CONFIG.particleSize,
+                map: sprite,
+                vertexColors: true,
+                alphaTest: 0.5,
                 transparent: true,
-                opacity: 0.8,
+                opacity: 0.9,
                 blending: THREE.AdditiveBlending
             });
-            const geometry = new THREE.BufferGeometry();
-            particles = new THREE.Points(geometry, material);
-            scene.add(particles);
 
-            function showNext() {
-                if (idx >= sequence.length) {
-                    endIntro();
-                    return;
-                }
-
-                const text = sequence[idx];
-                const textGeo = new TextGeometry(text, {
-                    font: window.mainFont,
-                    size: idx === sequence.length -1 ? 15 : 20,
-                    height: 1,
-                    curveSegments: 12
-                });
-                textGeo.center();
-
-                const targetPositions = textGeo.attributes.position.array;
-                const count = targetPositions.length / 3;
-                
-                // If geometry doesn't exist, create it. If it does, tween to new positions
-                // For simplicity in this single file, we recreate geometry or just snap (Tweening points is heavy for text morphs without shaders)
-                // Let's do a simple fade-in/out effect with scale for the "Countdown"
-                
-                geometry.setAttribute('position', new THREE.Float32BufferAttribute(targetPositions, 3));
-                geometry.attributes.position.needsUpdate = true;
-                particles.scale.set(0.1, 0.1, 0.1);
-                
-                // Tween Scale & Rotation
-                new TWEEN.Tween(particles.scale)
-                    .to({ x: 1, y: 1, z: 1 }, 800)
-                    .easing(TWEEN.Easing.Elastic.Out)
-                    .start();
-                
-                new TWEEN.Tween(particles.rotation)
-                    .to({ y: Math.PI * 2 }, 1000)
-                    .onComplete(() => {
-                        setTimeout(() => {
-                            idx++;
-                            showNext();
-                        }, 200);
-                    })
-                    .start();
-            }
-
-            showNext();
+            particleSystem = new THREE.Points(particlesGeometry, material);
+            scene.add(particleSystem);
         }
 
-        function endIntro() {
-            // "Warp Speed" Effect
-            new TWEEN.Tween(particles.scale)
-                .to({ x: 5, y: 5, z: 20 }, 1000)
-                .easing(TWEEN.Easing.Exponential.In)
-                .onComplete(() => {
-                    scene.remove(particles);
-                    // Reveal Main Scene
-                    revealMainScene();
-                })
-                .start();
-        }
+        // --- 2. 形状生成器 (Canvas文字 & 数学蛋糕) ---
 
-        // --- Main Scene Logic (InstancedMesh) ---
-
-        function createMainScene() {
-            // Geometry Mix: Sphere, Box, Cylinder
-            const sphereGeo = new THREE.SphereGeometry(1, 16, 16);
-            // We use one geometry for instancing, but we can scale them to look like different shapes or use a merged geometry.
-            // For simplicity and performance, we stick to Spheres but scale them differently (some look like discs, some like rods).
-            
-            const material = new THREE.MeshPhysicalMaterial({
-                color: 0xffd700,
-                metalness: 1.0,
-                roughness: 0.2,
-                clearcoat: 1.0,
-                clearcoatRoughness: 0.1
-            });
-
-            instancedMesh = new THREE.InstancedMesh(sphereGeo, material, CONFIG.instanceCount);
-            instancedMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-            
-            dummy = new THREE.Object3D();
-            
-            // Generate Data
-            for (let i = 0; i < CONFIG.instanceCount; i++) {
-                // Random Color variation (gold, silver, gems)
-                const colorHex = CONFIG.colors[Math.floor(Math.random() * CONFIG.colors.length)];
-                instancedMesh.setColorAt(i, new THREE.Color(colorHex));
-
-                // 1. Tree/Cake Target Data
-                const layer = i % 3; // 0: Bottom, 1: Mid, 2: Top
-                const angle = Math.random() * Math.PI * 2;
-                let r, y;
-                
-                if (layer === 0) { r = 20 + Math.random() * 10; y = -15 + Math.random() * 5; }
-                else if (layer === 1) { r = 12 + Math.random() * 8; y = 0 + Math.random() * 5; }
-                else { r = 5 + Math.random() * 5; y = 15 + Math.random() * 5; }
-                
-                const treePos = new THREE.Vector3(
-                    Math.cos(angle) * r,
-                    y,
-                    Math.sin(angle) * r
-                );
-
-                // 2. Scatter Target Data
-                const phi = Math.acos(-1 + (2 * i) / CONFIG.instanceCount);
-                const theta = Math.sqrt(CONFIG.instanceCount * Math.PI) * phi;
-                const spread = 60;
-                const scatterPos = new THREE.Vector3(
-                    spread * Math.cos(theta) * Math.sin(phi),
-                    spread * Math.sin(theta) * Math.sin(phi),
-                    spread * Math.cos(phi)
-                );
-
-                // Store in our data structure
-                instances.push({
-                    id: i,
-                    treePos: treePos,
-                    scatterPos: scatterPos,
-                    currentPos: scatterPos.clone(),
-                    velocity: new THREE.Vector3((Math.random()-0.5)*0.1, (Math.random()-0.5)*0.1, (Math.random()-0.5)*0.1),
-                    scale: Math.random() * 0.5 + 0.2
-                });
-
-                // Set Initial (Scatter)
-                dummy.position.copy(scatterPos);
-                dummy.scale.setScalar(instances[i].scale);
-                dummy.updateMatrix();
-                instancedMesh.setMatrixAt(i, dummy.matrix);
-            }
-
-            instancedMesh.visible = false; // Hide until intro done
-            scene.add(instancedMesh);
-        }
-
-        function revealMainScene() {
-            instancedMesh.visible = true;
-            camera.position.z = 150;
-            
-            // Intro Camera move
-            new TWEEN.Tween(camera.position)
-                .to({ z: CONFIG.camPos.z }, 2000)
-                .easing(TWEEN.Easing.Cubic.Out)
-                .start();
-        }
-
-        // --- Photo Wall Logic ---
-
-        function handleImageUpload(event) {
-            const files = event.target.files;
-            if (!files.length) return;
-
-            const loader = new THREE.TextureLoader();
-            
-            Array.from(files).forEach((file, index) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = new Image();
-                    img.src = e.target.result;
-                    img.onload = () => {
-                        // Create Texture
-                        const texture = new THREE.Texture(img);
-                        texture.needsUpdate = true;
-                        
-                        // Create Mesh
-                        const geometry = new THREE.PlaneGeometry(8, 8 * (img.height/img.width));
-                        const material = new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide });
-                        const mesh = new THREE.Mesh(geometry, material);
-                        
-                        // Add Gold Border
-                        const borderGeo = new THREE.BoxGeometry(8.2, 8.2 * (img.height/img.width), 0.5);
-                        const borderMat = new THREE.MeshStandardMaterial({ color: 0xFFD700, metalness: 1, roughness: 0.3 });
-                        const border = new THREE.Mesh(borderGeo, borderMat);
-                        border.position.z = -0.3;
-                        mesh.add(border);
-
-                        // Position randomly first
-                        mesh.position.set(
-                            (Math.random() - 0.5) * 80,
-                            (Math.random() - 0.5) * 80,
-                            (Math.random() - 0.5) * 80
-                        );
-                        
-                        mesh.userData = {
-                            scatterPos: mesh.position.clone(),
-                            treePos: new THREE.Vector3(
-                                Math.cos(index) * 25,
-                                (index % 2 === 0 ? 5 : -5), 
-                                Math.sin(index) * 25
-                            ), // Simple ring arrangement
-                            velocity: new THREE.Vector3((Math.random()-0.5)*0.05, (Math.random()-0.5)*0.05, 0)
-                        };
-
-                        scene.add(mesh);
-                        uploadedPhotos.push(mesh);
-                    };
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        // --- AI / MediaPipe Integration ---
-
-        async function setupAI() {
-            const vision = await FilesetResolver.forVisionTasks(
-                "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.8/wasm"
-            );
-            handLandmarker = await HandLandmarker.createFromOptions(vision, {
-                baseOptions: {
-                    modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
-                    delegate: "GPU"
-                },
-                runningMode: "VIDEO",
-                numHands: 1
-            });
-        }
-
-        function toggleCam() {
-            if (!handLandmarker) { alert("AI模型正在加载中，请稍候..."); return; }
-            if (webcamRunning) {
-                stopCam();
-            } else {
-                startCam();
-            }
-        }
-
-        function startCam() {
-            webcamRunning = true;
-            document.getElementById('webcam-container').style.display = 'block';
-            document.getElementById('status-pill').innerText = "AI: 激活中...";
-            
-            const constraints = { video: true };
-            navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
-                uiElements.video.srcObject = stream;
-                uiElements.video.addEventListener("loadeddata", predictWebcam);
-            });
-        }
-
-        function stopCam() {
-            webcamRunning = false;
-            document.getElementById('webcam-container').style.display = 'none';
-            document.getElementById('status-pill').innerText = "AI: 已关闭";
-            if(uiElements.video.srcObject) {
-                uiElements.video.srcObject.getTracks().forEach(track => track.stop());
-            }
-        }
-
-        async function predictWebcam() {
-            const video = uiElements.video;
-            const canvas = uiElements.canvasOverlay;
+        // 从Canvas文字生成粒子点
+        function getPointsFromText(text, fontSize = 100, yOffset = 0) {
+            const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            let lastVideoTime = -1;
+            canvas.width = 1024;
+            canvas.height = 512;
+            
+            ctx.font = `bold ${fontSize}px "Microsoft YaHei", Arial`;
+            ctx.fillStyle = '#FFFFFF';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, canvas.width / 2, canvas.height / 2);
 
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imgData.data;
+            const points = [];
+            
+            // 采样步长，越小粒子越密
+            const step = 4;
 
-            async function renderLoop() {
-                if (!webcamRunning) return;
-                
-                if (video.currentTime !== lastVideoTime) {
-                    lastVideoTime = video.currentTime;
-                    const startTimeMs = performance.now();
-                    const results = handLandmarker.detectForVideo(video, startTimeMs);
-
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    
-                    if (results.landmarks && results.landmarks.length > 0) {
-                        const landmarks = results.landmarks[0];
-                        drawLandmarks(ctx, landmarks);
-                        processGestures(landmarks);
-                        document.getElementById('status-pill').classList.add('active-state');
-                    } else {
-                         document.getElementById('status-pill').classList.remove('active-state');
+            for (let y = 0; y < canvas.height; y += step) {
+                for (let x = 0; x < canvas.width; x += step) {
+                    const alpha = data[(y * canvas.width + x) * 4 + 3];
+                    if (alpha > 128) {
+                        points.push({
+                            x: (x - canvas.width / 2) * 0.05,
+                            y: -(y - canvas.height / 2) * 0.05 + yOffset,
+                            z: 0
+                        });
                     }
                 }
-                requestAnimationFrame(renderLoop);
             }
-            renderLoop();
+            return points;
         }
 
-        function drawLandmarks(ctx, landmarks) {
-            ctx.fillStyle = "#00FF00";
-            for (const point of landmarks) {
-                ctx.beginPath();
-                ctx.arc(point.x * ctx.canvas.width, point.y * ctx.canvas.height, 4, 0, 2 * Math.PI);
-                ctx.fill();
-            }
-        }
+        // 生成蛋糕和星星的粒子
+        function getCakePoints() {
+            const points = [];
+            const colorsList = [];
 
-        function processGestures(landmarks) {
-            // Simple gesture logic
-            const thumbTip = landmarks[4];
-            const indexTip = landmarks[8];
-            const middleTip = landmarks[12];
-            const ringTip = landmarks[16];
-            const pinkyTip = landmarks[20];
-            const wrist = landmarks[0];
-
-            // 1. Pinch (Zoom) - Distance between thumb and index
-            const pinchDist = Math.hypot(thumbTip.x - indexTip.x, thumbTip.y - indexTip.y);
-            if (pinchDist < 0.05) {
-                document.getElementById('status-pill').innerText = "AI: 捏合 (Zoom)";
-                // Zoom logic
-                camera.position.z = THREE.MathUtils.lerp(camera.position.z, 40, 0.05);
-            } else {
-                // Restore zoom if not pinching
-                if(currentState === 'TREE') camera.position.z = THREE.MathUtils.lerp(camera.position.z, 80, 0.02);
-            }
-
-            // 2. Fist vs Open Hand
-            // Check if fingertips are close to wrist/palm base
-            const tips = [indexTip, middleTip, ringTip, pinkyTip];
-            let foldedCount = 0;
-            tips.forEach(tip => {
-                if (Math.hypot(tip.x - wrist.x, tip.y - wrist.y) < 0.15) foldedCount++;
-            });
-
-            if (foldedCount >= 3) {
-                document.getElementById('status-pill').innerText = "AI: 握拳 (聚合)";
-                changeState('TREE');
-                autoRotate = true;
-            } else if (foldedCount === 0 && pinchDist > 0.1) {
-                document.getElementById('status-pill').innerText = "AI: 张开 (散开)";
-                changeState('SCATTER');
-                
-                // 3. Hand Movement Rotation (Only in Scatter)
-                const centerX = 0.5;
-                const deadZone = 0.1;
-                if (wrist.x < centerX - deadZone) {
-                    scene.rotation.y -= 0.02; // Move left
-                } else if (wrist.x > centerX + deadZone) {
-                    scene.rotation.y += 0.02; // Move right
+            // 辅助函数：生成圆柱体层
+            function addLayer(radius, height, yPos, colorHex) {
+                const color = new THREE.Color(colorHex);
+                const count = 3000; 
+                for (let i = 0; i < count; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    // 侧面 + 顶面
+                    let r, h;
+                    if (Math.random() > 0.3) {
+                        // 侧面
+                        r = radius;
+                        h = Math.random() * height;
+                    } else {
+                        // 顶面
+                        r = Math.sqrt(Math.random()) * radius;
+                        h = height;
+                    }
+                    
+                    points.push({
+                        x: Math.cos(angle) * r,
+                        y: yPos + h,
+                        z: Math.sin(angle) * r
+                    });
+                    colorsList.push(color);
                 }
-                autoRotate = false;
             }
-        }
 
-        function changeState(newState) {
-            if (currentState === newState) return;
-            currentState = newState;
+            // 1. 三层蛋糕
+            addLayer(4, 1.5, -4, CONFIG.colors.layer1); // 底层
+            addLayer(3, 1.5, -2.5, CONFIG.colors.layer2); // 中层
+            addLayer(2, 1.5, -1, CONFIG.colors.layer3); // 顶层
+
+            // 2. 顶部星星
+            const starColor = new THREE.Color(CONFIG.colors.star);
+            for(let i=0; i<1000; i++) {
+                // 简单的球形聚集模拟星星
+                const u = Math.random();
+                const v = Math.random();
+                const theta = 2 * Math.PI * u;
+                const phi = Math.acos(2 * v - 1);
+                const r = 0.8 + Math.random() * 0.2; // 星星半径
+                
+                // 稍微压扁一点做成五角星很难，这里用个发光球代替，或者做简单的五角星逻辑
+                // 这里用简单的参数方程模拟个星型
+                const angle = (i / 1000) * Math.PI * 4; // 绕两圈
+                const starR = 1.5 * Math.pow(Math.cos(angle*2.5), 2) + 0.5; // 星型极坐标
+                
+                points.push({
+                    x: starR * Math.cos(angle),
+                    y: 1.5 + Math.random() * 0.5, // 蛋糕顶端
+                    z: starR * Math.sin(angle)
+                });
+                colorsList.push(starColor);
+            }
+
+            // 3. 横幅 "2026也要天天开心"
+            const bannerPoints = getPointsFromText("2026也要天天开心", 60, 4);
+            const bannerColor = new THREE.Color(0xFFFFFF); // 白色字
             
-            new TWEEN.Tween({ t: transitionProgress })
-                .to({ t: newState === 'TREE' ? 1 : 0 }, 2000)
-                .easing(TWEEN.Easing.Quadratic.InOut)
-                .onUpdate((obj) => {
-                    transitionProgress = obj.t;
-                })
-                .start();
-        }
-
-        // --- Render Loop ---
-
-        function updateInstances() {
-            if (!instancedMesh) return;
-
-            const t = transitionProgress; // 0 to 1
-            const time = clock.getElapsedTime();
-
-            for (let i = 0; i < CONFIG.instanceCount; i++) {
-                const data = instances[i];
-                
-                // Interpolate Position
-                const target = data.currentPos.lerpVectors(data.scatterPos, data.treePos, t);
-                
-                // Add some floating noise
-                const noiseX = Math.sin(time * 0.5 + data.id) * 0.5 * (1-t); // More noise when scattered
-                const noiseY = Math.cos(time * 0.3 + data.id) * 0.5 * (1-t);
-                
-                dummy.position.set(target.x + noiseX, target.y + noiseY, target.z);
-                
-                // Rotation
-                dummy.rotation.set(time * 0.1, time * 0.1, 0);
-                dummy.scale.setScalar(data.scale);
-                
-                dummy.updateMatrix();
-                instancedMesh.setMatrixAt(i, dummy.matrix);
-            }
-            instancedMesh.instanceMatrix.needsUpdate = true;
-
-            // Update Photos
-            uploadedPhotos.forEach(mesh => {
-                mesh.lookAt(camera.position);
-                const target = new THREE.Vector3().lerpVectors(mesh.userData.scatterPos, mesh.userData.treePos, t);
-                mesh.position.lerp(target, 0.05);
+            bannerPoints.forEach(p => {
+                // 稍微弯曲文字
+                const bend = -0.05 * Math.pow(p.x, 2);
+                points.push({
+                    x: p.x * 0.6, // 缩小一点
+                    y: p.y + bend,
+                    z: p.z 
+                });
+                colorsList.push(bannerColor);
             });
+
+            return { points, colorsList };
         }
 
+        // --- 3. 动画与形变逻辑 ---
+
+        function morphTo(newPoints, specificColor = null) {
+            // 更新 targetPositions
+            for (let i = 0; i < CONFIG.particleCount; i++) {
+                if (i < newPoints.length) {
+                    const p = newPoints[i];
+                    targetPositions[i*3] = p.x;
+                    targetPositions[i*3+1] = p.y;
+                    targetPositions[i*3+2] = p.z;
+
+                    if (specificColor) {
+                        targetColors[i*3] = specificColor.r;
+                        targetColors[i*3+1] = specificColor.g;
+                        targetColors[i*3+2] = specificColor.b;
+                    } 
+                    // 如果是蛋糕模式，颜色在 getCakePoints 里已经生成好了，需要特殊处理
+                    // 为了简化，如果是 Text 模式我们传 specificColor，如果是 Cake 模式我们另外处理
+                } else {
+                    // 多余的粒子隐藏 (发散到远处)
+                    const theta = Math.random() * Math.PI * 2;
+                    const r = 50 + Math.random() * 50;
+                    targetPositions[i*3] = r * Math.cos(theta);
+                    targetPositions[i*3+1] = (Math.random()-0.5) * 100;
+                    targetPositions[i*3+2] = r * Math.sin(theta);
+                }
+            }
+        }
+
+        function morphToCake() {
+            const data = getCakePoints();
+            const pts = data.points;
+            const cols = data.colorsList;
+
+            for (let i = 0; i < CONFIG.particleCount; i++) {
+                if (i < pts.length) {
+                    targetPositions[i*3] = pts[i].x;
+                    targetPositions[i*3+1] = pts[i].y;
+                    targetPositions[i*3+2] = pts[i].z;
+
+                    targetColors[i*3] = cols[i].r;
+                    targetColors[i*3+1] = cols[i].g;
+                    targetColors[i*3+2] = cols[i].b;
+                } else {
+                    // 多余粒子变星星背景
+                    const r = 30 + Math.random() * 20;
+                    const theta = Math.random() * Math.PI * 2;
+                    targetPositions[i*3] = r * Math.cos(theta);
+                    targetPositions[i*3+1] = (Math.random()-0.5) * 40;
+                    targetPositions[i*3+2] = r * Math.sin(theta);
+                    
+                    targetColors[i*3] = 1; targetColors[i*3+1] = 1; targetColors[i*3+2] = 1; 
+                }
+            }
+        }
+
+        // 倒计时逻辑
+        function startCountdown() {
+            currentPhase = 'countdown';
+            if (countdownValue > 0) {
+                const pts = getPointsFromText(countdownValue.toString(), 200);
+                morphTo(pts, new THREE.Color(CONFIG.colors.countdown));
+                countdownValue--;
+                setTimeout(startCountdown, 1000);
+            } else {
+                showYear2026();
+            }
+        }
+
+        function showYear2026() {
+            currentPhase = '2026';
+            const pts = getPointsFromText("2026", 250);
+            morphTo(pts, new THREE.Color(0xFFD700)); // 金色
+            
+            setTimeout(() => {
+                showCake();
+            }, 2000); // 展示2秒
+        }
+
+        function showCake() {
+            currentPhase = 'cake';
+            morphToCake();
+            // 开启旋转
+        }
+
+        // --- 4. 渲染循环 ---
         function animate() {
             requestAnimationFrame(animate);
-            TWEEN.update();
+            
+            const time = Date.now() * 0.001;
             const delta = clock.getDelta();
 
-            if (autoRotate && currentState === 'TREE') {
-                scene.rotation.y += 0.002;
-            } else if (currentState === 'SCATTER' && autoRotate) {
-                scene.rotation.y += 0.0005; // Slower rotate in scatter
+            // 粒子位置插值 (Lerp)
+            const positionsArr = particlesGeometry.attributes.position.array;
+            const colorsArr = particlesGeometry.attributes.color.array;
+            
+            const speed = 4.0 * delta; // 移动速度
+
+            for (let i = 0; i < CONFIG.particleCount; i++) {
+                const px = positionsArr[i*3];
+                const py = positionsArr[i*3+1];
+                const pz = positionsArr[i*3+2];
+                
+                const tx = targetPositions[i*3];
+                const ty = targetPositions[i*3+1];
+                const tz = targetPositions[i*3+2];
+
+                // 位置缓动
+                positionsArr[i*3] += (tx - px) * speed;
+                positionsArr[i*3+1] += (ty - py) * speed;
+                positionsArr[i*3+2] += (tz - pz) * speed;
+
+                // 颜色缓动
+                if (currentPhase === 'cake') {
+                    // 蛋糕模式颜色也要渐变
+                    colorsArr[i*3] += (targetColors[i*3] - colorsArr[i*3]) * speed;
+                    colorsArr[i*3+1] += (targetColors[i*3+1] - colorsArr[i*3+1]) * speed;
+                    colorsArr[i*3+2] += (targetColors[i*3+2] - colorsArr[i*3+2]) * speed;
+                } else if (currentPhase === 'countdown' || currentPhase === '2026') {
+                    // 纯色
+                    colorsArr[i*3] += (targetColors[i*3] - colorsArr[i*3]) * speed;
+                    colorsArr[i*3+1] += (targetColors[i*3+1] - colorsArr[i*3+1]) * speed;
+                    colorsArr[i*3+2] += (targetColors[i*3+2] - colorsArr[i*3+2]) * speed;
+                }
+
+                // 蛋糕模式下的整体旋转特效 (不影响 positions，只影响 Object3D)
+                // 但这里我们为了让粒子闪烁，加点噪点
+                if (currentPhase === 'cake') {
+                    positionsArr[i*3] += Math.sin(time * 5 + py) * 0.005;
+                }
+            }
+            
+            particlesGeometry.attributes.position.needsUpdate = true;
+            particlesGeometry.attributes.color.needsUpdate = true;
+
+            // 整体旋转控制 (手势或自动)
+            if (currentPhase === 'cake') {
+                if (isGestureEnabled && handRotation !== 0) {
+                    // 手势控制旋转
+                    particleSystem.rotation.y = handRotation;
+                } else {
+                    // 自动缓慢旋转
+                    particleSystem.rotation.y += 0.005;
+                }
+            } else {
+                particleSystem.rotation.y = 0; // 倒计时正对屏幕
             }
 
-            updateInstances();
+            // 缩放/摄像机距离控制
+            if (isGestureEnabled) {
+                // 平滑过渡摄像机位置
+                camera.position.z += (handZoom - camera.position.z) * 0.1;
+            }
+
             controls.update();
-            
-            // Render Bloom
-            composer.render();
+            renderer.render(scene, camera);
+        }
+
+        function createBackgroundStars() {
+            const geometry = new THREE.BufferGeometry();
+            const vertices = [];
+            for (let i = 0; i < 2000; i++) {
+                vertices.push(THREE.MathUtils.randFloatSpread(200));
+                vertices.push(THREE.MathUtils.randFloatSpread(200));
+                vertices.push(THREE.MathUtils.randFloatSpread(200));
+            }
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+            const stars = new THREE.Points(geometry, new THREE.PointsMaterial({ color: 0x888888, size: 0.3 }));
+            scene.add(stars);
         }
 
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-            composer.setSize(window.innerWidth, window.innerHeight);
         }
 
-        // --- Audio Logic (Simple Drone) ---
-        function toggleMusic() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-                
-                oscillator.type = 'sine';
-                oscillator.frequency.setValueAtTime(110, audioCtx.currentTime); // A2 (Low drone)
-                
-                // LFO for modulation
-                const lfo = audioCtx.createOscillator();
-                lfo.frequency.value = 0.1;
-                const lfoGain = audioCtx.createGain();
-                lfoGain.gain.value = 50;
-                lfo.connect(lfoGain);
-                lfoGain.connect(oscillator.frequency);
-                lfo.start();
+        // --- 5. 手势识别逻辑 (MediaPipe) ---
+        
+        const videoElement = document.getElementsByClassName('input_video')[0];
+        let cameraUtils;
 
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                gainNode.gain.value = 0.05; // Quiet
+        function onResults(results) {
+            if (!isGestureEnabled) return;
+
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                const landmarks = results.multiHandLandmarks[0];
                 
-                oscillator.start();
-                isMusicPlaying = true;
-                document.getElementById('music-btn').innerText = "停止音乐 🔇";
+                // 1. 旋转控制：使用食指指尖 (Index Finger Tip - 8) 的 X 坐标
+                // 屏幕左边 x=0, 右边 x=1. 映射到旋转角度 -PI 到 PI
+                const indexX = landmarks[8].x;
+                const targetRotation = (indexX - 0.5) * 4 * Math.PI; // 放大系数让旋转更灵敏
+                
+                // 平滑插值
+                handRotation += (targetRotation - handRotation) * 0.1;
+
+                // 2. 缩放控制：使用拇指(4)和食指(8)的距离
+                const thumb = landmarks[4];
+                const index = landmarks[8];
+                const distance = Math.sqrt(
+                    Math.pow(thumb.x - index.x, 2) + 
+                    Math.pow(thumb.y - index.y, 2)
+                );
+
+                // 距离范围大约 0.05 (捏合) 到 0.3 (张开)
+                // 映射到摄像机 Z 轴 5 (近) 到 30 (远)
+                // 距离越小(捏合) -> Z越大(远) -> 实际上是缩小
+                // 距离越大(张开) -> Z越小(近) -> 实际上是放大
+                // 修正：通常捏合是缩小(远离)，张开是放大(靠近)
+                
+                const minZoom = 5;
+                const maxZoom = 25;
+                // 简单的线性映射
+                let targetZoom = 20 - (distance * 40); 
+                if (targetZoom < minZoom) targetZoom = minZoom;
+                if (targetZoom > maxZoom) targetZoom = maxZoom;
+
+                handZoom = targetZoom;
+
+                document.getElementById('status-msg').innerHTML = "✋ 手势识别中... <br>捏合缩放，左右移动旋转";
             } else {
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                    document.getElementById('music-btn').innerText = "停止音乐 🔇";
-                } else {
-                    audioCtx.suspend();
-                    document.getElementById('music-btn').innerText = "播放音乐 🔈";
-                }
+                document.getElementById('status-msg').innerHTML = "👀 未检测到手势";
+                // 复位
+                // handRotation = 0; // 不复位，保持当前角度
             }
         }
 
-        // Run Init
-        init();
+        function initMediaPipe() {
+            const hands = new Hands({locateFile: (file) => {
+                return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+            }});
+            
+            hands.setOptions({
+                maxNumHands: 1,
+                modelComplexity: 1,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5
+            });
+            
+            hands.onResults(onResults);
+            
+            cameraUtils = new Camera(videoElement, {
+                onFrame: async () => {
+                    await hands.send({image: videoElement});
+                },
+                width: 320,
+                height: 240
+            });
+            
+            cameraUtils.start()
+                .then(() => { console.log("Camera started"); })
+                .catch(err => {
+                    console.error("Camera failed", err);
+                    document.getElementById('status-msg').innerText = "❌ 摄像头无法启动，请使用鼠标交互";
+                });
+        }
+
+        // --- 6. UI 事件绑定 ---
+
+        // 开始按钮
+        document.getElementById('start-btn').addEventListener('click', () => {
+            document.getElementById('start-overlay').style.opacity = 0;
+            setTimeout(() => {
+                document.getElementById('start-overlay').style.display = 'none';
+                initScene();
+                initMediaPipe(); // 启动摄像头
+                startCountdown(); // 开始流程
+            }, 1000);
+        });
+
+        // 背景上传
+        document.getElementById('file-input-img').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const texture = new THREE.TextureLoader().load(event.target.result);
+                    scene.background = texture;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 音乐上传
+        document.getElementById('file-input-audio').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                audio.src = url;
+                audio.play();
+            }
+        });
+
+        // 纯净模式
+        document.getElementById('pure-mode-btn').addEventListener('click', () => {
+            isPureMode = !isPureMode;
+            const ui = document.getElementById('ui-controls');
+            const msg = document.getElementById('status-msg');
+            
+            if (isPureMode) {
+                ui.style.opacity = 0;
+                msg.style.opacity = 0;
+                document.getElementById('pure-mode-btn').innerText = "点击任意处退出纯净模式";
+                // 监听点击恢复
+                const restore = () => {
+                    isPureMode = false;
+                    ui.style.opacity = 1;
+                    msg.style.opacity = 1;
+                    document.getElementById('pure-mode-btn').innerText = "✨ 纯净模式";
+                    document.removeEventListener('click', restore);
+                };
+                setTimeout(() => document.addEventListener('click', restore), 100);
+            }
+        });
+
+        // 手势开关
+        document.getElementById('gesture-toggle').addEventListener('click', function() {
+            isGestureEnabled = !isGestureEnabled;
+            this.innerText = isGestureEnabled ? "✋ 关闭手势" : "✋ 开启手势";
+            if (!isGestureEnabled) {
+                document.getElementById('status-msg').innerText = "🖱️ 使用鼠标操作";
+                handRotation = 0;
+            }
+        });
 
     </script>
 </body>
