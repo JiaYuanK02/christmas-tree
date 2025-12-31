@@ -35,6 +35,7 @@
             color: #ffd700; font-size: 20px; display: flex; justify-content: center; align-items: center;
             cursor: pointer; backdrop-filter: blur(4px); transition: 0.3s;
         }
+         /* 音乐播放时的激活状态样式 */
         .icon-btn.active {
             border-color: #00ff00;
             color: #00ff00;
@@ -223,7 +224,7 @@
             
             <div class="slider-container">
                 <span class="slider-label">旋转速度</span>
-                <input type="range" id="speed-slider" min="0" max="0.02" step="0.001" value="0.003">
+                <input type="range" id="speed-slider" min="0" max="0.05" step="0.001" value="0.003">
             </div>
         </div>
     </div>
@@ -241,7 +242,9 @@
 
         // --- 全局配置 ---
         const CONFIG = {
+            // 在这里设置自定义标题
             title: "2026也要天天开心",
+            // 在这里设置背景音乐链接 (使用免费的节日氛围音乐)
             audioUrl: "https://cdn.pixabay.com/download/audio/2022/10/25/audio_1f237f900e.mp3?filename=christmas-magic-124976.mp3",
             
             goldCount: 800, silverCount: 600, gemCount: 600, emeraldCount: 400, dustCount: 2000,
