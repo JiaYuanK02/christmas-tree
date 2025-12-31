@@ -206,7 +206,7 @@
         <div id="start-screen">
             <div id="loading-text">资源预加载中 (0%)...</div>
             <div class="start-controls">
-                <input type="text" id="title-input" placeholder="输入2026祝福语" value="2026也要天天开心">
+                <input type="text" id="title-input" placeholder="输入2026祝福语" value="2026也要天天开心呀~">
                 
                 <div class="btn-row">
                     <button class="secondary-btn" id="upload-btn" onclick="document.getElementById('file-input').click()">上传照片</button>
@@ -669,7 +669,7 @@
             document.getElementById('controls').style.display = 'flex'; 
             document.getElementById('video-container').style.display = 'block';
             
-            const customTitle = document.getElementById('title-input').value || '2026也要天天开心';
+            const customTitle = document.getElementById('title-input').value || '2026也要天天开心呀~';
             createHeaderText(customTitle); 
             
             setTimeout(() => {
@@ -712,7 +712,7 @@
             snowSystem.rotation.y = time * 0.01;
         }
 
-        function createHeaderText(text = '2026也要天天开心') {
+        function createHeaderText(text = '2026也要天天开心呀~') {
             const textCanvas = document.createElement('canvas');
             textCanvas.width = 2048; textCanvas.height = 512;
             const ctx = textCanvas.getContext('2d');
